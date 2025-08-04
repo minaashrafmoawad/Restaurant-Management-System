@@ -1,0 +1,209 @@
+﻿
+@model RestaurantManagementSystem.Application.DTOs.CreateOrderDto
+@using RestaurantManagementSystem.Domain.Models
+
+@{
+    ViewData["Title"] = "Create New Order";
+    var categories = ViewBag.Categories as IEnumerable<Category>;
+}
+
+<h1>Create New Order</h1>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="card mb-4 rounded">
+        <div class="card-header bg-primary text-white rounded-top">
+            Order Details
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label"></label>
+                <select asp-for="Type" class="form-select rounded">
+                    <option value="DineIn">Dine-In</option>
+                    <option value="Takeout">Takeout</option>
+                    <option value="Delivery">Delivery</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SpecialInstructions" class="form-label"></label>
+                <textarea asp-for="SpecialInstructions" class="form-control rounded" rows="3"></textarea>
+                <span asp-validation-for="SpecialInstructions" class="text-danger"></span>
+            </div>
+            <div class="mb-3" id="deliveryAddressField" style="display: none;">
+                <label asp-for="DeliveryAddress" class="form-label"></label>
+                <input asp-for="DeliveryAddress" class="form-control rounded" />
+                <span asp-validation-for="DeliveryAddress" class="text-danger"></span>
+            </div>
+            <div class="mb-3" id="pickupTimeField" style="display: none;">
+                <label asp-for="PickupTime" class="form-label"></label>
+                <input asp-for="PickupTime" type="datetime-local" class="form-control rounded" />
+                <span asp-validation-for="PickupTime" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 rounded">
+        <div class="card-header bg-primary text-white rounded-top">
+            Add Menu Items
+        </div>
+        <div class="card-body">
+            <div id="order-items-container">
+                <div class="order-item row mb-3 align-items-end border-bottom pb-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Menu Item</label>
+                        <select name="OrderItems[0].MenuItemId" class="form-select menu-item-select rounded" required>
+                            <option value="">-- Select Item --</option>
+                            @if (categories != null)
+                            {
+                                @foreach (var category in categories)
+                                {
+                                    <optgroup label="@category.Name">
+                                        @if (category.MenuItems != null)
+                                        {
+                                            @foreach (var item in category.MenuItems.Where(mi => mi.IsAvailable))
+                                            {
+                                                <option value="@item.Id" data-price="@item.Price">@item.Name (@item.Price?.ToString("C"))</option>
+                                            }
+                                        }
+                                    </optgroup>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="OrderItems[0].Quantity" class="form-control item-quantity rounded" value="1" min="1" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Item Total</label>
+                        <input type="text" class="form-control item-total rounded" value="0.00" readonly />
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-end">
+                        <button type="button" class="btn btn-danger btn-sm remove-item rounded" style="display:none;">X</button>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label class="form-label">Special Instructions (Optional)</label>
+                        <input type="text" name="OrderItems[0].SpecialInstructions" class="form-control rounded" />
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="add-item-btn" class="btn btn-outline-secondary rounded">Add Another Item</button>
+        </div>
+        <div class="card-footer text-end rounded-bottom">
+            <h4>Total Amount: <span id="overall-total">0.00</span></h4>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg rounded">Place Order</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Function to update item total and overall total
+            function updateTotals() {
+                let overallTotal = 0;
+                $('.order-item').each(function () {
+                    const price = parseFloat($(this).find('.menu-item-select option:selected').data('price') || 0);
+                    const quantity = parseInt($(this).find('.item-quantity').val() || 0);
+                    const itemTotal = price * quantity;
+                    $(this).find('.item-total').val(itemTotal.toFixed(2));
+                    overallTotal += itemTotal;
+                });
+                $('#overall-total').text(overallTotal.toFixed(2));
+            }
+
+            // Initial calculation
+            updateTotals();
+
+            // Event listener for menu item selection and quantity change
+            $(document).on('change', '.menu-item-select, .item-quantity', updateTotals);
+
+            // Add new item row
+            let itemIndex = 0;
+            $('#add-item-btn').click(function () {
+                itemIndex++;
+                const newItemRow = `
+                    <div class="order-item row mb-3 align-items-end border-bottom pb-3">
+                        <div class="col-md-5">
+                            <label class="form-label">Menu Item</label>
+                            <select name="OrderItems[${itemIndex}].MenuItemId" class="form-select menu-item-select rounded" required>
+                                <option value="">-- Select Item --</option>
+        @if (categories != null)
+        {
+            @foreach (var category in categories)
+            {
+                                                <optgroup label="@category.Name">
+                    @if (category.MenuItems != null)
+                    {
+                        @foreach (var item in category.MenuItems.Where(mi => mi.IsAvailable))
+                        {
+                                                                    <option value="@item.Id" data-price="@item.Price">@item.Name (@item.Price?.ToString("C"))</option>
+                        }
+                    }
+                                                </optgroup>
+            }
+        }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="OrderItems[${itemIndex}].Quantity" class="form-control item-quantity rounded" value="1" min="1" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Item Total</label>
+                            <input type="text" class="form-control item-total rounded" value="0.00" readonly />
+                        </div>
+                        <div class="col-md-1 d-flex justify-content-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-item rounded">X</button>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <label class="form-label">Special Instructions (Optional)</label>
+                            <input type="text" name="OrderItems[${itemIndex}].SpecialInstructions" class="form-control rounded" />
+                        </div>
+                    </div>
+                `;
+                $('#order-items-container').append(newItemRow);
+                updateTotals(); // Recalculate totals after adding new item
+                $('.remove-item').show(); // Show remove buttons if more than one item
+            });
+
+            // Remove item row
+            $(document).on('click', '.remove-item', function () {
+                $(this).closest('.order-item').remove();
+                // Re-index names to maintain correct array binding
+                $('.order-item').each(function (idx) {
+                    $(this).find('[name^="OrderItems"]').each(function () {
+                        const originalName = $(this).attr('name');
+                        const newName = originalName.replace(/\[\d+\]/, `[${idx}]`);
+                        $(this).attr('name', newName);
+                    });
+                });
+                itemIndex = $('.order-item').length - 1; // Adjust itemIndex
+                if (itemIndex < 1) { // Hide remove button if only one item remains
+                    $('.remove-item').hide();
+                }
+                updateTotals(); // Recalculate totals after removing item
+            });
+
+            // Handle order type visibility
+            $('#Type').change(function () {
+                const selectedType = $(this).val();
+                if (selectedType === 'Delivery') {
+                    $('#deliveryAddressField').show();
+                    $('#pickupTimeField').hide();
+                } else if (selectedType === 'Takeout') {
+                    $('#pickupTimeField').show();
+                    $('#deliveryAddressField').hide();
+                } else {
+                    $('#deliveryAddressField, #pickupTimeField').hide();
+                }
+            }).change(); // Trigger on load
+        });
+    </script>
+}

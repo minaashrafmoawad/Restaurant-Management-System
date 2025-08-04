@@ -1,0 +1,58 @@
+﻿<!-- Views/Menu/Index.cshtml -->
+@model IEnumerable<RestaurantManagementSystem.Domain.Models.Category>
+
+@{
+    ViewData["Title"] = "Menu";
+}
+
+<h1>Our Menu</h1>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var category in Model)
+    {
+        <div class="card mb-4 rounded">
+            <div class="card-header bg-primary text-white rounded-top">
+                <h2 class="mb-0">@category.Name</h2>
+                <small>@category.Description</small>
+            </div>
+            <div class="card-body">
+                @if (category.MenuItems != null && category.MenuItems.Any())
+                {
+                    <div class="row">
+                        @foreach (var item in category.MenuItems.Where(mi => mi.IsAvailable))
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 rounded">
+                                    @if (!string.IsNullOrEmpty(item.ImageURL))
+                                    {
+                                        <img src="@item.ImageURL" class="card-img-top rounded-top" alt="@item.Name" style="height: 180px; object-fit: cover;"
+                                             onerror="this.onerror=null;this.src='https://placehold.co/400x180/E0E0E0/000000?text=No+Image';">
+                                    }
+                                    else
+                                    {
+                                        <img src="https://placehold.co/400x180/E0E0E0/000000?text=No+Image" class="card-img-top rounded-top" alt="No Image" style="height: 180px; object-fit: cover;">
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.Name</h5>
+                                        <p class="card-text">@item.Description</p>
+                                        <p class="card-text"><strong>Price:</strong> @item.Price?.ToString("C")</p>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm rounded">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p>No menu items available in this category.</p>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No menu categories or items available at the moment.</p>
+}

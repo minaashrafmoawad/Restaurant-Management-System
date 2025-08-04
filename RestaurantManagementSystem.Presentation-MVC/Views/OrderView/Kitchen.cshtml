@@ -1,0 +1,116 @@
+﻿@using RestaurantManagementSystem.Domain.Models
+@using RestaurantManagementSystem.Domain.Enums
+@{
+    ViewData["Title"] = "Kitchen View";
+    var preparingOrders = ViewBag.PreparingOrders as IEnumerable<Order>;
+    var pendingOrders = ViewBag.PendingOrders as IEnumerable<Order>;
+}
+
+<h1>Kitchen View</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4 rounded">
+            <div class="card-header bg-warning text-dark rounded-top">
+                <h3>Pending Orders</h3>
+            </div>
+            <div class="card-body">
+                @if (pendingOrders != null && pendingOrders.Any())
+                {
+                    <div class="accordion" id="pendingOrdersAccordion">
+                        @foreach (var order in pendingOrders)
+                        {
+                            <div class="accordion-item rounded mb-2">
+                                <h2 class="accordion-header" id="headingPending_@order.Id">
+                                    <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePending_@order.Id" aria-expanded="false" aria-controls="collapsePending_@order.Id">
+                                        Order #@order.Id.ToString().Substring(0, 8) - @order.CreatedDate.ToShortTimeString() (@order.Type)
+                                    </button>
+                                </h2>
+                                <div id="collapsePending_@order.Id" class="accordion-collapse collapse" aria-labelledby="headingPending_@order.Id" data-bs-parent="#pendingOrdersAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Total:</strong> @order.TotalAmount.ToString("C")</p>
+                                        <p><strong>Instructions:</strong> @(order.SpecialInstructions ?? "None")</p>
+                                        <h5>Items:</h5>
+                                        <ul class="list-group list-group-flush mb-3">
+                                            @foreach (var item in order.OrderItems)
+                                            {
+                                                <li class="list-group-item">
+                                                    @item.Quantity x @(item.MenuItem?.Name ?? "N/A") (@(item.SpecialInstructions ?? "No special instructions"))
+                                                </li>
+                                            }
+                                        </ul>
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                            <input type="hidden" name="status" value="@OrderStatus.Preparing" />
+                                            <button type="submit" class="btn btn-success btn-sm rounded">Mark as Preparing</button>
+                                        </form>
+                                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-info btn-sm rounded ms-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p>No pending orders.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4 rounded">
+            <div class="card-header bg-info text-white rounded-top">
+                <h3>Preparing Orders</h3>
+            </div>
+            <div class="card-body">
+                @if (preparingOrders != null && preparingOrders.Any())
+                {
+                    <div class="accordion" id="preparingOrdersAccordion">
+                        @foreach (var order in preparingOrders)
+                        {
+                            <div class="accordion-item rounded mb-2">
+                                <h2 class="accordion-header" id="headingPreparing_@order.Id">
+                                    <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePreparing_@order.Id" aria-expanded="false" aria-controls="collapsePreparing_@order.Id">
+                                        Order #@order.Id.ToString().Substring(0, 8) - @order.CreatedDate.ToShortTimeString() (@order.Type)
+                                    </button>
+                                </h2>
+                                <div id="collapsePreparing_@order.Id" class="accordion-collapse collapse" aria-labelledby="headingPreparing_@order.Id" data-bs-parent="#preparingOrdersAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Total:</strong> @order.TotalAmount.ToString("C")</p>
+                                        <p><strong>Instructions:</strong> @(order.SpecialInstructions ?? "None")</p>
+                                        <h5>Items:</h5>
+                                        <ul class="list-group list-group-flush mb-3">
+                                            @foreach (var item in order.OrderItems)
+                                            {
+                                                <li class="list-group-item">
+                                                    @item.Quantity x @(item.MenuItem?.Name ?? "N/A") (@(item.SpecialInstructions ?? "No special instructions"))
+                                                </li>
+                                            }
+                                        </ul>
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                            <input type="hidden" name="status" value="@OrderStatus.Ready" />
+                                            <button type="submit" class="btn btn-primary btn-sm rounded">Mark as Ready</button>
+                                        </form>
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline ms-2">
+                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                            <input type="hidden" name="status" value="@OrderStatus.Cancelled" />
+                                            <button type="submit" class="btn btn-danger btn-sm rounded">Cancel Order</button>
+                                        </form>
+                                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-info btn-sm rounded ms-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p>No orders currently being prepared.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

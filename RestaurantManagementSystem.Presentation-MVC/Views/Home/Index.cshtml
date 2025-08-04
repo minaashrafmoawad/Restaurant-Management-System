@@ -1,0 +1,80 @@
+﻿
+
+@model IEnumerable<RestaurantManagementSystem.Domain.Models.Category>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Restaurant Management System!</h1>
+    <p>Manage your restaurant efficiently and effectively.</p>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-body">
+                <h5 class="card-title">Today's Summary</h5>
+                <p><strong>Total Sales:</strong> @(ViewBag.TodaySales != null ? ViewBag.TodaySales.ToString("C") : "N/A")</p>
+                <p><strong>Total Orders:</strong> @(ViewBag.TodayOrders ?? "N/A")</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-body">
+                <h5 class="card-title">Popular Items Today</h5>
+                @if (ViewBag.PopularItems != null && ((Dictionary<string, int>)ViewBag.PopularItems).Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in (Dictionary<string, int>)ViewBag.PopularItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @item.Key
+                                <span class="badge bg-primary rounded-pill">@item.Value</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No popular items data for today.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h2>Menu Categories</h2>
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var category in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card rounded">
+                        <div class="card-body">
+                            <h5 class="card-title">@category.Name</h5>
+                            <p class="card-text">@category.Description</p>
+                            <a asp-controller="MenuView" asp-action="Category" asp-route-categoryId="@category.Id" class="btn btn-primary btn-sm rounded">View Items</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <p>No menu categories available.</p>
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger rounded">
+                        <strong>Error:</strong> @ViewBag.Error
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

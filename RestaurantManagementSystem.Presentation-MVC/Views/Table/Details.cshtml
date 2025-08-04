@@ -1,0 +1,126 @@
+﻿
+@model RestaurantManagementSystem.Domain.Models.Table
+
+@{
+    ViewData["Title"] = "Table Details";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-4">
+                <a asp-action="Index" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0">
+                    <i class="fas fa-info-circle text-info me-2"></i>
+                    Table Details
+                </h2>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Table Number:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            <h4 class="text-primary mb-0">Table @Html.DisplayFor(model => model.Number)</h4>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Capacity:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            <span class="badge bg-info fs-6">@Model.Capacity @(Model.Capacity == 1 ? "person" : "people")</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Availability Status:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @if (Model.IsAvailable)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-check-circle me-1"></i>Available
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark fs-6">
+                                    <i class="fas fa-clock me-1"></i>Occupied
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Status:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @if (!Model.IsDeleted)
+                            {
+                                <span class="badge bg-success fs-6">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6">Deleted</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Created Date:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="mb-0">@Model.CreatedDate.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                        </div>
+                    </div>
+
+                    @if (Model.UpdatedDate.HasValue)
+                    {
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <strong class="text-muted">Last Updated:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <p class="mb-0">@Model.UpdatedDate?.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong class="text-muted">Table ID:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            <code>@Model.Id</code>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list me-2"></i>Back to List
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

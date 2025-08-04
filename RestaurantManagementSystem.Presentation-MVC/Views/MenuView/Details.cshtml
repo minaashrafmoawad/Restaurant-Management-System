@@ -1,0 +1,56 @@
+﻿@model RestaurantManagementSystem.Domain.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Menu Item Details";
+}
+
+<h1>Menu Item Details</h1>
+
+@if (Model != null)
+{
+    <div class="card rounded">
+        <div class="card-header bg-primary text-white rounded-top">
+            <h2 class="mb-0">@Model.Name</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    @if (!string.IsNullOrEmpty(Model.ImageURL))
+                    {
+                        <img src="@Model.ImageURL" class="img-fluid rounded" alt="@Model.Name"
+                             onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E0E0/000000?text=No+Image';">
+                    }
+                    else
+                    {
+                        <img src="https://placehold.co/400x300/E0E0E0/000000?text=No+Image" class="img-fluid rounded" alt="No Image">
+                    }
+                </div>
+                <div class="col-md-8">
+                    <dl class="row">
+                        <dt class="col-sm-3">Description:</dt>
+                        <dd class="col-sm-9">@Model.Description</dd>
+
+                        <dt class="col-sm-3">Price:</dt>
+                        <dd class="col-sm-9">@Model.Price?.ToString("C")</dd>
+
+                        <dt class="col-sm-3">Availability:</dt>
+                        <dd class="col-sm-9">@(Model.IsAvailable ? "Available" : "Not Available")</dd>
+
+                        <dt class="col-sm-3">Category:</dt>
+                        <dd class="col-sm-9">@(Model.Category?.Name ?? "N/A")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer rounded-bottom">
+            <a asp-action="Index" class="btn btn-secondary rounded">Back to Menu</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning rounded">
+        <p>Menu item not found.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary rounded">Back to Menu</a>
+}

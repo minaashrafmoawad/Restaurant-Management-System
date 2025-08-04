@@ -1,0 +1,110 @@
+﻿@using RestaurantManagementSystem.Application.DTOs
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+    var todayReport = ViewBag.TodayReport as SalesReportDto;
+    var yesterdayReport = ViewBag.YesterdayReport as SalesReportDto;
+    var weeklyTotal = ViewBag.WeeklyTotal;
+    var popularItems = ViewBag.PopularItems as Dictionary<string, int>;
+}
+
+<h1>Analytics Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-header bg-primary text-white rounded-top">
+                Today's Report (@DateTime.Today.ToShortDateString())
+            </div>
+            <div class="card-body">
+                @if (todayReport != null)
+                {
+                    <p><strong>Total Sales:</strong> @todayReport.TotalSales.ToString("C")</p>
+                    <p><strong>Total Orders:</strong> @todayReport.TotalOrders</p>
+                    <p><strong>Average Order Value:</strong> @todayReport.AverageOrderValue.ToString("C")</p>
+                    <h5>Popular Items:</h5>
+                    @if (todayReport.PopularItems.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in todayReport.PopularItems)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    @item.Key
+                                    <span class="badge bg-secondary rounded-pill">@item.Value</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No popular items today.</p>
+                    }
+                }
+                else
+                {
+                    <p>No report available for today.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-header bg-info text-white rounded-top">
+                Yesterday's Report (@DateTime.Today.AddDays(-1).ToShortDateString())
+            </div>
+            <div class="card-body">
+                @if (yesterdayReport != null)
+                {
+                    <p><strong>Total Sales:</strong> @yesterdayReport.TotalSales.ToString("C")</p>
+                    <p><strong>Total Orders:</strong> @yesterdayReport.TotalOrders</p>
+                    <p><strong>Average Order Value:</strong> @yesterdayReport.AverageOrderValue.ToString("C")</p>
+                }
+                else
+                {
+                    <p>No report available for yesterday.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-header bg-success text-white rounded-top">
+                Weekly Summary
+            </div>
+            <div class="card-body">
+                <p><strong>Total Sales (Last 7 Days):</strong> @(weeklyTotal != null ? ((decimal)weeklyTotal).ToString("C") : "N/A")</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card rounded">
+            <div class="card-header bg-warning text-dark rounded-top">
+                Popular Items (Last 7 Days)
+            </div>
+            <div class="card-body">
+                @if (popularItems != null && popularItems.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in popularItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @item.Key
+                                <span class="badge bg-dark rounded-pill">@item.Value</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No popular items data for the last 7 days.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="SalesReport" class="btn btn-primary rounded">View Detailed Sales Report</a>
+</div>

@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Sales Report";
+    var startDate = ViewBag.StartDate;
+    var endDate = ViewBag.EndDate;
+    var totalSales = ViewBag.TotalSales;
+    var popularItems = ViewBag.PopularItems as Dictionary<string, int>;
+}
+
+<h1>Sales Report</h1>
+
+<form asp-action="SalesReport" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="startDate" class="form-label">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" class="form-control rounded" value="@(startDate.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="endDate" class="form-label">End Date:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control rounded" value="@(endDate.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary rounded w-100">Generate Report</button>
+        </div>
+    </div>
+</form>
+
+<div class="card rounded">
+    <div class="card-header bg-primary text-white rounded-top">
+        Report for @startDate.ToShortDateString() to @endDate.ToShortDateString()
+    </div>
+    <div class="card-body">
+        <p><strong>Total Sales:</strong> @(totalSales != null ? ((decimal)totalSales).ToString("C") : "N/A")</p>
+
+        <h5>Popular Items:</h5>
+        @if (popularItems != null && popularItems.Any())
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var item in popularItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @item.Key
+                        <span class="badge bg-secondary rounded-pill">@item.Value</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No popular items found for the selected date range.</p>
+        }
+    </div>
+</div>

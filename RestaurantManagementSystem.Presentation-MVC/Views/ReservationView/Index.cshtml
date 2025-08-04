@@ -1,0 +1,69 @@
+﻿@model IEnumerable<RestaurantManagementSystem.Domain.Models.TableReservation>
+
+@{
+    ViewData["Title"] = "Table Reservations";
+    var selectedDate = ViewBag.SelectedDate as DateTime?;
+}
+
+<h1>Table Reservations</h1>
+
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="date" class="form-label">Select Date:</label>
+                <input type="date" id="date" name="date" class="form-control rounded" value="@(selectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary rounded w-100">Filter Reservations</button>
+        </div>
+        <div class="col-md-4 d-flex align-items-end justify-content-end">
+            <a asp-action="Create" class="btn btn-success rounded">Create New Reservation</a>
+        </div>
+    </div>
+</form>
+
+<div class="card rounded">
+    <div class="card-header bg-primary text-white rounded-top">
+        Reservations for @(selectedDate?.ToShortDateString() ?? DateTime.Today.ToShortDateString())
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-striped rounded">
+                <thead>
+                    <tr>
+                        <th>Table Number</th>
+                        <th>Customer ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reservation in Model)
+                    {
+                        <tr>
+                            <td>@(reservation.Table?.Number.ToString() ?? "N/A")</td>
+                            <td>@reservation.CustomerId.ToString().Substring(0, 8)...</td>
+                            <td>@reservation.Date.ToShortDateString()</td>
+                            <td>@reservation.Time.ToString(@"hh\:mm")</td>
+                            <td>@reservation.CreatedDate.ToShortDateString()</td>
+                            <td>
+                                <!-- You might add a delete/cancel action here if needed -->
+                                <!-- Example (requires a post action or JavaScript confirmation): -->
+                                <!-- <a asp-action="Cancel" asp-route-id="@reservation.Id" class="btn btn-danger btn-sm">Cancel</a> -->
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No reservations found for the selected date.</p>
+        }
+    </div>
+</div>

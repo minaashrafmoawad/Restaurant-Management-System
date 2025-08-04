@@ -1,0 +1,83 @@
+﻿@model RestaurantManagementSystem.Application.DTOs.TableReservationDto
+
+@{
+    ViewData["Title"] = "Create Reservation";
+}
+
+<h1>Create New Reservation</h1>
+
+<form asp-action="Create" method="post" id="reservationForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="card mb-4 rounded">
+        <div class="card-header bg-primary text-white rounded-top">
+            Reservation Details
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="CustomerId" class="form-label">Customer ID (for demo, assume a valid Guid)</label>
+                <input asp-for="CustomerId" class="form-control rounded" value="00000000-0000-0000-0000-000000000000" />
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TableNumber" class="form-label"></label>
+                <input asp-for="TableNumber" class="form-control rounded" type="number" min="1" />
+                <span asp-validation-for="TableNumber" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" class="form-control rounded" type="date" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Time" class="form-label"></label>
+                <input asp-for="Time" class="form-control rounded" type="time" />
+                <span asp-validation-for="Time" class="text-danger"></span>
+            </div>
+            <button type="button" id="checkAvailabilityBtn" class="btn btn-info rounded">Check Availability</button>
+            <div id="availabilityMessage" class="mt-2"></div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg rounded">Book Reservation</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#checkAvailabilityBtn').click(function () {
+                const tableNumber = $('#TableNumber').val();
+                const date = $('#Date').val();
+                const time = $('#Time').val();
+
+                if (!tableNumber || !date || !time) {
+                    $('#availabilityMessage').html('<div class="alert alert-warning rounded">Please fill in Table Number, Date, and Time.</div>');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CheckAvailability", "ReservationView")',
+                    type: 'POST',
+                    data: {
+                        tableNumber: tableNumber,
+                        date: date,
+                        time: time
+                    },
+                    success: function (response) {
+                        if (response.isAvailable) {
+                            $('#availabilityMessage').html('<div class="alert alert-success rounded">Table is available!</div>');
+                        } else {
+                            $('#availabilityMessage').html('<div class="alert alert-danger rounded">Table is NOT available at this time.</div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#availabilityMessage').html('<div class="alert alert-danger rounded">Error checking availability: ' + xhr.responseText + '</div>');
+                    }
+                });
+            });
+        });
+    </script>
+}
